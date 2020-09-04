@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-from http.server import HTTPServer
-from http.server import SimpleHTTPRequestHandler
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 ip = '127.0.0.1'
 # 一般にwebサーバのport番号は80だが、他のwebサーバを起動していると使えないため、8000を指定したりすることが多い

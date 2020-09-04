@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-from http.server import HTTPServer
-from http.server import SimpleHTTPRequestHandler
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 class CustomHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
