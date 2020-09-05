@@ -20,7 +20,7 @@ target_host = '222.222.222.222'  # ここは例
 ports = range(1, 1024)
 
 for i in ports:
-    pkt1 = sr_tcp('127.0.0.1', idle_host, port, "SA")  # SAはSYN/ACKの略なはず、SはSYN
+    pkt1 = sr_tcp('127.0.0.1', target_host, port, "SA")  # SAはSYN/ACKの略なはず、SはSYN
     send_tcp(idle_host, target_host, i, "S")
     pkt2 = sr_tcp('127.0.0.1', idle_host, port, "SA")
 
