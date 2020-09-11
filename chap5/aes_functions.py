@@ -62,6 +62,13 @@ A = np.array([
     [3, 1, 1, 2],
 ])
 
+invA = np.array([
+    [14, 11, 13, 9],
+    [9, 14, 11, 13],
+    [13, 9, 14, 11],
+    [11, 13, 9, 14],
+])
+
 def key_schedule(key):
     W = key.reshape(4, 4)         # 4*4の行列形式に変換
     for i in range(4, 44):
@@ -69,26 +76,36 @@ def key_schedule(key):
         if i%4 == 0:
             tmp = np.roll(W[i-1], -1, axis=0)       # RotWord
             tmp = np.array([S_box[t] for t in tmp]) # SubWord
-            tmp ^= Rcon[i/4-1]
+            tmp ^= Rcon[i//4-1]  # python2だと/でdefaultで整数が帰ってくる
             W_i = W[i-4] ^ tmp
         else:
             W_i = W[i-4] ^ W[i-1]
         W = np.vstack([W, W_i])
     return W.reshape(11, 16)
 
-def AddRoundKey(data, key):
+def AddRoundKey(data, rkey):
     data = data.reshape(4, 4)
-    rkey = data.reshape(4, 4)
+    rkey = rkey.reshape(4, 4)
     return data ^ rkey
 
 def SubBytes(data):
     output = np.array([S_box[i] for i in data.reshape(16,)])
-    return data
+    return output.reshape(4, 4)
+
+def invSubBytes(data):
+    output = np.array([invS_box[i] for i in data.reshape(16,)])
+    return output.reshape(4, 4)
 
 def ShiftRows(data):
     data = data.reshape(4, 4)
     for i in range(4):
         data[i] = np.roll(data[i], -i, axis=0)
+    return data
+
+def invShiftRows(data):
+    data = data.reshape(4, 4)
+    for i in range(4):
+        data[i] = np.roll(data[i], i, axis=0)
     return data
 
 def MixColumns(data):
@@ -99,13 +116,20 @@ def MixColumns(data):
         output[:,i:i+1] = out
     return output.astype(np.int)
 
+def invMixColumns(data):
+    data = data.reshape(4, 4)
+    output = np.zeros([4, 4])
+    for i in range(4):
+        out = xor_dot(invA, data[:,i]).reshape(4, 1)
+        output[:, i:i+1] = out
+    return output.astype(np.int)
+
 def xor_dot(mat4d, vec4):
     out = np.zeros([4, 1], dtype=np.int)
     for i in range(4):
         for j in range(4):
             out[i] ^= g_mul(mat4d[i][j], vec4[j])
     return out
-
 
 def g_mul(x, y):
     out = 0
